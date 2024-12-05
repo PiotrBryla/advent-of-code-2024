@@ -7,7 +7,8 @@ const __dirname = path.dirname(__filename);
 const NEW_LINE_SYMBOL = "\n";
 
 const INPUT_FILE_NAME = "input.txt";
-const PATTERN = "(XMAS|SAMX)";
+const XMAS_PATTERN = /XMAS/g;
+const SMAX_PATTERN = /SAMX/g;
 
 const getInputLines = (file: string) => {
   const text = fs.readFileSync(path.resolve(__dirname, file)).toString();
@@ -29,22 +30,66 @@ const getVerticalLines = (lines: string[]) => {
   return verticalLines;
 };
 
-const getDiagonalLines = (lines: string[]) => {
-  const diagonalLines = [];
+const bfs = (
+  graph: string[],
+  staringNode: [number, number],
+  path: string,
+  dir: "L" | "R"
+) => {
+  const queue = [staringNode];
+  let result = "";
 
-  for (let startingX = 0; startingX < lines[0].length; startingX++) {
-    let diagonalLine = "";
-    for (
-      let x = startingX, y = 0;
-      x < lines[0].length && y < lines.length;
-      x++, y++
-    ) {
-      diagonalLine += lines[y][x];
+  while (queue.length && result !== path) {
+    const node = queue.shift();
+    const [y, x] = node as [number, number];
+    const letter = path[result.length];
+
+    if (graph[y][x] === letter) {
+      result += letter;
+      if (result === path) return true;
+
+      const nextNode: [number, number] =
+        dir === "L" ? [y + 1, x - 1] : [y + 1, x + 1];
+
+      const [nY, nX] = nextNode;
+      // check if is in bound
+      if (nX >= 0 && nX < graph[0].length && nY >= 0 && nY < graph.length) {
+        queue.push(nextNode);
+      }
+    } else {
+      break;
     }
-
-    diagonalLines.push(diagonalLine);
   }
-  return diagonalLines;
+
+  return result === path;
+};
+
+const searchDiagonally = (lines: string[], sequence: string) => {
+  let diagonalFindsCount = 0;
+
+  const startingNodes = [];
+
+  // find all starting nodes
+  for (let x = 0; x < lines[0].length; x++) {
+    for (let y = 0; y < lines.length; y++) {
+      if (lines[x][y] === sequence[0]) {
+        startingNodes.push([x, y]);
+      }
+    }
+  }
+
+  // for all starting nodes
+  startingNodes.forEach((node) => {
+    // left to right down
+    // right to left down
+
+    const L = bfs(lines, node as [number, number], sequence, "L") ? 1 : 0;
+    const R = bfs(lines, node as [number, number], sequence, "R") ? 1 : 0;
+
+    diagonalFindsCount += L + R;
+  });
+
+  return diagonalFindsCount;
 };
 
 const countMatchingPattern = (lines: string[], pattern: RegExp) => {
@@ -60,24 +105,23 @@ const countMatchingPattern = (lines: string[], pattern: RegExp) => {
 const prepareInput = (lines: string[]) => {
   const horizontal = lines;
   const vertical = getVerticalLines(lines);
-  const diagonal = getDiagonalLines(lines);
 
   return {
     horizontal,
     vertical,
-    diagonal,
   };
 };
 
 const compute = () => {
-  const { horizontal, vertical, diagonal } = prepareInput(
-    getInputLines(INPUT_FILE_NAME)
-  );
+  const { horizontal, vertical } = prepareInput(getInputLines(INPUT_FILE_NAME));
 
   const result =
-    countMatchingPattern(horizontal, PATTERN) +
-    countMatchingPattern(vertical, PATTERN) +
-    countMatchingPattern(diagonal, PATTERN);
+    countMatchingPattern(horizontal, XMAS_PATTERN) +
+    countMatchingPattern(horizontal, SMAX_PATTERN) +
+    countMatchingPattern(vertical, XMAS_PATTERN) +
+    countMatchingPattern(vertical, SMAX_PATTERN) +
+    searchDiagonally(horizontal, "XMAS") +
+    searchDiagonally(horizontal, "SAMX");
 
   return result;
 };
