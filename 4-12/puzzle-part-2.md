@@ -1,17 +1,23 @@
 --- Part Two ---
-As you scan through the corrupted memory, you notice that some of the conditional statements are also still intact. If you handle some of the uncorrupted conditional statements in the program, you might be able to get an even more accurate result.
+The Elf looks quizzically at you. Did you misunderstand the assignment?
 
-There are two new instructions you'll need to handle:
+Looking for the instructions, you flip over the word search to find that this isn't actually an XMAS puzzle; it's an X-MAS puzzle in which you're supposed to find two MAS in the shape of an X. One way to achieve that is like this:
 
-The do() instruction enables future mul instructions.
-The don't() instruction disables future mul instructions.
-Only the most recent do() or don't() instruction applies. At the beginning of the program, mul instructions are enabled.
+M.S
+.A.
+M.S
+Irrelevant characters have again been replaced with . in the above diagram. Within the X, each MAS can be written forwards or backwards.
 
-For example:
+Here's the same example from before, but this time all of the X-MASes have been kept instead:
 
-xmul(2,4)&mul[3,7]!^don't()_mul(5,5)+mul(32,64](mul(11,8)undo()?mul(8,5))
-This corrupted memory is similar to the example from before, but this time the mul(5,5) and mul(11,8) instructions are disabled because there is a don't() instruction before them. The other mul instructions function normally, including the one at the end that gets re-enabled by a do() instruction.
-
-This time, the sum of the results is 48 (2*4 + 8*5).
-
-Handle the new instructions; what do you get if you add up all of the results of just the enabled multiplications?
+.M.S......
+..A..MSMS.
+.M.S.MAA..
+..A.ASMSM.
+.M.S.M....
+..........
+S.S.S.S.S.
+.A.A.A.A..
+M.M.M.M.M.
+..........
+In this example, an X-MAS appears 9 times.
