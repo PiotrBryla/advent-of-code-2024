@@ -71,4 +71,4 @@ const compute = () => {
 };
 
 console.log(compute());
-// answer: 5651
+// answer: 4789
